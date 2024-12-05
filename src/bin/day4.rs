@@ -4,7 +4,7 @@ use advent_of_code_24::input;
 
 
 fn main() {
-    let content = input::read_all("day4");
+    let content = input::read("day4");
     println!("part1 {}", part1(&content));
 }
 

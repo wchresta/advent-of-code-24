@@ -3,7 +3,7 @@ use advent_of_code_24::input;
 use regex::Regex;
 
 fn main() {
-    let content = input::read_all("day3");
+    let content = input::read("day3");
 
     println!("part1 {}", part1(&content));
     println!("part2 {}", part2(&content));
