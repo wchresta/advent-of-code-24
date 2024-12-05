@@ -29,3 +29,8 @@ where T: FromStr + std::fmt::Debug, <T as FromStr>::Err: std::fmt::Debug {
             .unwrap()
     ).collect()
 }
+
+pub fn as_matrix<'a, T>(content: &'a str) -> Vec<Vec<T>>
+where Vec<T>: FromIterator<char> {
+    content.lines().map(|line| line.chars().collect()).collect()
+}
