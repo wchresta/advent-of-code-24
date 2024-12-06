@@ -11,10 +11,12 @@ fn main() {
 
 fn part1(content: &str) -> i32 {
     let re = Regex::new(r"mul\((\d+),(\d+)\)").expect("cannot compile regex");
-    re.captures_iter(content).map(|c| {
-        let (_, [x,y]) = c.extract();
-        x.parse::<i32>().unwrap() * y.parse::<i32>().unwrap()
-    }).sum()
+    re.captures_iter(content)
+        .map(|c| {
+            let (_, [x, y]) = c.extract();
+            x.parse::<i32>().unwrap() * y.parse::<i32>().unwrap()
+        })
+        .sum()
 }
 
 #[test]

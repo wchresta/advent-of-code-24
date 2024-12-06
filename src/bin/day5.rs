@@ -2,7 +2,7 @@ use std::{cmp::Ordering, collections::HashSet};
 
 use advent_of_code_24::input;
 
-type Rules = Vec<(u32,u32)>;
+type Rules = Vec<(u32, u32)>;
 type Pages = Vec<Vec<u32>>;
 
 fn main() {
@@ -14,17 +14,22 @@ fn main() {
 
 fn parse(inp: &str) -> (Rules, Pages) {
     let mut state = 0;
-    let mut rules: Vec<(u32,u32)> = Vec::new();
+    let mut rules: Vec<(u32, u32)> = Vec::new();
     let mut pages: Vec<Vec<u32>> = Vec::new();
     for line in inp.lines() {
         if line.is_empty() {
             state += 1;
-            continue
+            continue;
         }
 
         match state {
-            0 => { let xy: Vec<&str> = line.split('|').collect(); rules.push((xy[0].parse().unwrap(),xy[1].parse().unwrap())); },
-            _ => { pages.push(line.split(',').map(|n| n.parse().unwrap()).collect()); },
+            0 => {
+                let xy: Vec<&str> = line.split('|').collect();
+                rules.push((xy[0].parse().unwrap(), xy[1].parse().unwrap()));
+            }
+            _ => {
+                pages.push(line.split(',').map(|n| n.parse().unwrap()).collect());
+            }
         }
     }
 
@@ -32,7 +37,7 @@ fn parse(inp: &str) -> (Rules, Pages) {
 }
 
 fn part1(rules: &Rules, pages: &Pages) -> u32 {
-    let mut order: HashSet<(u32,u32)> = HashSet::new();
+    let mut order: HashSet<(u32, u32)> = HashSet::new();
     for r in rules {
         order.insert(*r);
     }
@@ -40,24 +45,23 @@ fn part1(rules: &Rules, pages: &Pages) -> u32 {
     let mut value = 0;
     for ps in pages {
         let mut violates = false;
-        for i in 0..ps.len()-1 {
-            for j in i+1..ps.len() {
-                if order.contains(&(ps[j],ps[i])) {
+        for i in 0..ps.len() - 1 {
+            for j in i + 1..ps.len() {
+                if order.contains(&(ps[j], ps[i])) {
                     violates = true;
                     break;
                 }
             }
         }
         if !violates {
-            value += ps[ps.len()/2];
+            value += ps[ps.len() / 2];
         }
     }
     value
 }
 
-
 fn part2(rules: &Rules, pages: &Pages) -> u32 {
-    let mut order: HashSet<(u32,u32)> = HashSet::new();
+    let mut order: HashSet<(u32, u32)> = HashSet::new();
     for r in rules {
         order.insert(*r);
     }
@@ -65,9 +69,9 @@ fn part2(rules: &Rules, pages: &Pages) -> u32 {
     let mut incorrect: Pages = Vec::new();
     for ps in pages {
         let mut violates = false;
-        for i in 0..ps.len()-1 {
-            for j in i+1..ps.len() {
-                if order.contains(&(ps[j],ps[i])) {
+        for i in 0..ps.len() - 1 {
+            for j in i + 1..ps.len() {
+                if order.contains(&(ps[j], ps[i])) {
                     violates = true;
                     break;
                 }
@@ -81,7 +85,7 @@ fn part2(rules: &Rules, pages: &Pages) -> u32 {
     let mut value = 0;
     for mut ps in incorrect {
         ps.sort_by(|a, b| {
-            if order.contains(&(*a,*b)) {
+            if order.contains(&(*a, *b)) {
                 Ordering::Less
             } else if order.contains(&(*b, *a)) {
                 Ordering::Greater
@@ -90,15 +94,16 @@ fn part2(rules: &Rules, pages: &Pages) -> u32 {
             }
         });
 
-        value += ps[ps.len()/2];
+        value += ps[ps.len() / 2];
     }
-    
+
     value
 }
 
 #[test]
 fn test_part1() {
-    let (rules, pages) = parse("47|53
+    let (rules, pages) = parse(
+        "47|53
 97|13
 97|61
 97|47
@@ -125,14 +130,15 @@ fn test_part1() {
 75,29,13
 75,97,47,61,53
 61,13,29
-97,13,75,29,47");
-    assert_eq!(part1(rules,pages), 143)
+97,13,75,29,47",
+    );
+    assert_eq!(part1(&rules, &pages), 143)
 }
-
 
 #[test]
 fn test_part2() {
-    let (rules, pages) = parse("47|53
+    let (rules, pages) = parse(
+        "47|53
 97|13
 97|61
 97|47
@@ -159,6 +165,7 @@ fn test_part2() {
 75,29,13
 75,97,47,61,53
 61,13,29
-97,13,75,29,47");
-    assert_eq!(part2(rules,pages), 123)
+97,13,75,29,47",
+    );
+    assert_eq!(part2(&rules, &pages), 123)
 }

@@ -7,5 +7,26 @@ edition = "2021"
 name = "day1"
 path = "src/bin/day1.rs"
 
+[[bin]]
+name = "day2"
+path = "src/bin/day2.rs"
+
+[[bin]]
+name = "day3"
+path = "src/bin/day3.rs"
+
+[[bin]]
+name = "day4"
+path = "src/bin/day4.rs"
+
+[[bin]]
+name = "day5"
+path = "src/bin/day5.rs"
+
+[[bin]]
+name = "day6"
+path = "src/bin/day6.rs"
+
 [dependencies]
+nalgebra = "0.33.2"
 regex = "1.11.1"
