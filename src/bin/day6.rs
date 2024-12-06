@@ -1,19 +1,27 @@
 use advent_of_code_24::input;
+
 use nalgebra::DMatrix;
+use rayon::prelude::*;
+use std::collections::HashSet;
 
 type M = DMatrix<u8>;
+type Pos = (usize, usize);
+type Dir = (isize, isize);
 
 fn main() {
     let mat: M = input::as_matrix(&input::read("day6"));
     println!("part1 {}", part1(&mat));
+    println!("part2 {}", part2(&mat));
 }
 
 #[derive(Clone)]
 struct Guard {
     mat: M,
-    pos: (usize, usize),
-    dir: (isize, isize),
+    pos: Pos,
+    dir: Dir,
     dist: u16,
+    seen: HashSet<(Pos, Dir)>,
+    found_loop: bool,
 }
 
 impl Guard {
@@ -33,6 +41,8 @@ impl Guard {
             pos,
             dir: (-1, 0),
             dist: 0,
+            seen: HashSet::from([(pos, (-1, 0))]),
+            found_loop: false,
         }
     }
 
@@ -63,18 +73,26 @@ impl Guard {
                 '.' | '^' | 'X' => {
                     self.move_forward();
                 }
-                '#' => {
+                '#' | 'O' => {
                     self.rotate_right();
                 }
                 _ => panic!("invalid cell"),
             }
-            false
+
+            // Check if we have been here before
+            if self.seen.contains(&(self.pos, self.dir)) {
+                self.found_loop = true;
+                true
+            } else {
+                false
+            }
         } else {
             true
         }
     }
 
     fn rotate_right(&mut self) {
+        self.seen.insert((self.pos, self.dir));
         self.dir = match self.dir {
             (-1, 0) => (0, 1),
             (0, 1) => (1, 0),
@@ -85,6 +103,7 @@ impl Guard {
     }
 
     fn move_forward(&mut self) {
+        self.seen.insert((self.pos, self.dir));
         if self.mat[self.pos] != 'X' as u8 {
             // Only count distinct positions
             self.dist += 1;
@@ -118,6 +137,36 @@ fn part1(mat: &M) -> u16 {
     guard.dist + 1
 }
 
+fn part2(mat: &M) -> u16 {
+    let m = mat.clone_owned();
+    (0..m.nrows())
+        .collect::<Vec<usize>>()
+        .par_iter()
+        .map(|i| {
+            let mut found_loops = 0;
+            for j in 0..m.ncols() {
+                if m[(*i, j)] != '.' as u8 {
+                    continue;
+                }
+
+                let mut m = m.clone();
+                m[(*i, j)] = 'O' as u8;
+
+                let mut guard = Guard::from_mat(&m);
+                loop {
+                    if guard.step() {
+                        break;
+                    }
+                }
+                if guard.found_loop {
+                    found_loops += 1;
+                }
+            }
+            found_loops
+        })
+        .sum()
+}
+
 #[test]
 fn test_part1() {
     let mat = input::as_matrix(
@@ -134,4 +183,22 @@ fn test_part1() {
     );
 
     assert_eq!(part1(&mat), 41);
+}
+
+#[test]
+fn test_part2() {
+    let mat = input::as_matrix(
+        "....#.....
+.........#
+..........
+..#.......
+.......#..
+..........
+.#..^.....
+........#.
+#.........
+......#...",
+    );
+
+    assert_eq!(part2(&mat), 6);
 }
