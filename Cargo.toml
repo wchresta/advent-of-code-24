@@ -27,6 +27,10 @@ path = "src/bin/day5.rs"
 name = "day6"
 path = "src/bin/day6.rs"
 
+[[bin]]
+name = "day7"
+path = "src/bin/day7.rs"
+
 [dependencies]
 nalgebra = "0.33.2"
 rayon = "1.10.0"
