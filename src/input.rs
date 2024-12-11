@@ -7,6 +7,10 @@ pub fn read(day: &str) -> String {
     fs::read_to_string(&path).expect(&format!("input file {} not found", &path))
 }
 
+pub fn line(content: &str) -> String {
+    content.trim().to_owned()
+}
+
 pub fn as_lines(content: &str) -> Vec<String> {
     content.lines().map(String::from).collect()
 }
