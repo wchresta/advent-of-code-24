@@ -39,6 +39,10 @@ path = "src/bin/day8.rs"
 name = "day9"
 path = "src/bin/day9.rs"
 
+[[bin]]
+name = "day11"
+path = "src/bin/day11.rs"
+
 [dependencies]
 nalgebra = "0.33.2"
 rayon = "1.10.0"

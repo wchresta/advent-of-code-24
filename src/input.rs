@@ -11,6 +11,21 @@ pub fn line(content: &str) -> String {
     content.trim().to_owned()
 }
 
+pub fn single_line_vec<'a, T>(content: &'a str) -> Vec<T>
+where
+    T: FromStr + std::fmt::Debug,
+    <T as FromStr>::Err: std::fmt::Debug,
+{
+    content
+        .trim()
+        .split_whitespace()
+        .map(|x| {
+            x.parse::<T>()
+                .expect(&format!("cannot read {} as number", x))
+        })
+        .collect()
+}
+
 pub fn as_lines(content: &str) -> Vec<String> {
     content.lines().map(String::from).collect()
 }
