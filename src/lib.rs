@@ -1,4 +1,5 @@
 pub mod input;
+pub mod square;
 
 #[allow(dead_code)]
 pub fn solve1<T, U>(day: &str, input_func: impl Fn(&str) -> T, part1: impl Fn(&T) -> U)
