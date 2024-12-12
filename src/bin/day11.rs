@@ -14,17 +14,16 @@ fn part1(stones: &Vec<u64>) -> u64 {
 }
 
 fn part2(stones: &Vec<u64>) -> u64 {
-    run_stones(45, stones)
+    run_stones(75, stones)
 }
 
 fn run_stones(steps: u64, stones: &Vec<u64>) -> u64 {
-    let stones = Runner::new().run_stones(steps, stones);
-    stones.len() as u64
+    Runner::new().run_stones(steps, stones)
 }
 
 #[derive(Clone, Debug)]
 struct Runner {
-    cache: HashMap<(u64, u64), Vec<u64>>,
+    cache: HashMap<(u64, u64), u64>,
 }
 
 impl Runner {
@@ -34,26 +33,26 @@ impl Runner {
         }
     }
 
-    pub fn run_stones(&mut self, steps: u64, stones: &Vec<u64>) -> Vec<u64> {
-        stones
-            .iter()
-            .flat_map(|s| self.run_stone(steps, *s))
-            .collect()
+    pub fn run_stones(&mut self, steps: u64, stones: &Vec<u64>) -> u64 {
+        stones.iter().map(|s| self.run_stone(steps, *s)).sum()
     }
 
-    pub fn run_stone(&mut self, steps: u64, stone: u64) -> Vec<u64> {
+    pub fn run_stone(&mut self, steps: u64, stone: u64) -> u64 {
         let mut to_calc = Vec::from([(steps, stone)]);
         while let Some((n, s)) = to_calc.pop() {
-            let next = Runner::stone_step(s);
+            if self.cache.contains_key(&(n, s)) {
+                continue;
+            }
 
+            let next = Runner::stone_step(s);
             if n == 1 {
-                self.cache.insert((1, s), next);
+                self.cache.insert((1, s), next.len() as u64);
                 continue;
             }
 
             // Check if all stones are in cache
             let mut new_to_calc = Vec::new();
-            let mut result = Vec::new();
+            let mut result = 0;
 
             for t in next {
                 match self.cache.get(&(n - 1, t)) {
@@ -61,14 +60,14 @@ impl Runner {
                         new_to_calc.push((n - 1, t));
                     }
                     Some(r) => {
-                        result.push(r.to_vec());
+                        result += *r;
                     }
                 }
             }
 
             if new_to_calc.is_empty() {
                 // We know all values, so we know this value.
-                self.cache.insert((n, s), result.concat());
+                self.cache.insert((n, s), result);
             } else {
                 // There's something to calculate, still.
                 // So add this value back and also add the ones we still need after.
@@ -77,7 +76,7 @@ impl Runner {
                 to_calc.append(&mut new_to_calc);
             }
         }
-        self.cache.get(&(steps, stone)).unwrap().to_vec()
+        *self.cache.get(&(steps, stone)).unwrap()
     }
 
     pub fn stone_step(stone: u64) -> Vec<u64> {
