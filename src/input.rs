@@ -48,6 +48,18 @@ where
         .collect()
 }
 
+pub fn as_digit_square(content: &str) -> Vec<Vec<u8>> {
+    as_lines(content)
+        .iter()
+        .map(|line| {
+            line.chars().map(|p| {
+                    p.to_digit(10).unwrap() as u8
+                })
+                .collect::<Vec<_>>()
+        })
+        .collect()
+}
+
 pub fn as_as<T, const D: usize>(content: &str) -> Vec<[T; D]>
 where
     T: FromStr + std::fmt::Debug,
