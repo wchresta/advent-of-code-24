@@ -9,6 +9,12 @@
         rustc
         rustfmt
         rust-analyzer
+
+        lapack
+        pkg-config
+        cmake
+        gfortran
+        blas
       ];
 
       # Certain Rust tools won't work without this
