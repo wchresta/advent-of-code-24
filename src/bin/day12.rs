@@ -1,8 +1,18 @@
-use std::collections::HashSet;
+use std::{
+    borrow::BorrowMut,
+    collections::{
+        hash_map::Entry::{Occupied, Vacant},
+        HashMap, HashSet,
+    },
+};
 
-use advent_of_code_24::{input, solve, square, test1};
+use advent_of_code_24::{
+    input, solve,
+    square::{self, straight_neighbours},
+    test1,
+};
 
-type Pos = (usize, usize);
+type Pos = (isize, isize);
 
 fn main() {
     solve("day12", input::as_vecvec, part1, part2);
@@ -10,15 +20,20 @@ fn main() {
 
 fn part1(garden: &Vec<Vec<char>>) -> u64 {
     let regions = partition(garden);
-    regions.iter().map(score).sum()
+    regions.iter().map(score1).sum()
+}
+
+fn part2(garden: &Vec<Vec<char>>) -> u64 {
+    let regions = partition(garden);
+    regions.iter().map(score2).sum()
 }
 
 fn partition(garden: &Vec<Vec<char>>) -> Vec<Vec<Pos>> {
     let mut regions = Vec::new();
-    let mut seen = HashSet::new();
+    let mut seen: HashSet<(isize, isize)> = HashSet::new();
 
-    for y in 0..garden.len() {
-        for x in 0..garden[y].len() {
+    for y in 0..garden.len() as isize {
+        for x in 0..garden[y as usize].len() as isize {
             if seen.contains(&(x, y)) {
                 continue;
             }
@@ -35,7 +50,7 @@ fn partition(garden: &Vec<Vec<char>>) -> Vec<Vec<Pos>> {
 }
 
 fn explore_region(garden: &Vec<Vec<char>>, (x, y): Pos) -> Vec<Pos> {
-    let r = garden[y][x];
+    let r = garden[y as usize][x as usize];
     let mut stack = Vec::from([(x, y)]);
     let mut seen = HashSet::from([(x, y)]);
     while let Some(pos) = stack.pop() {
@@ -49,7 +64,7 @@ fn explore_region(garden: &Vec<Vec<char>>, (x, y): Pos) -> Vec<Pos> {
     seen.into_iter().collect()
 }
 
-fn score(region: &Vec<Pos>) -> u64 {
+fn score1(region: &Vec<Pos>) -> u64 {
     let h: HashSet<(isize, isize)> =
         HashSet::from_iter(region.iter().map(|(x, y)| (*x as isize, *y as isize)));
     let mut area = 0;
@@ -64,8 +79,52 @@ fn score(region: &Vec<Pos>) -> u64 {
     (area * perimeter) as u64
 }
 
-fn part2(stones: &Vec<Vec<char>>) -> u64 {
-    todo!()
+fn add((a, b): Pos, (c, d): Pos) -> Pos {
+    (a + c, b + d)
+}
+
+type Dir = (isize, isize);
+fn score2(region: &Vec<Pos>) -> u64 {
+    let mut region = region.clone();
+    // For later algorithms, it's important the region positions are sorted top-left to bottom-right
+    region.sort();
+
+    let h: HashSet<&Pos> = HashSet::from_iter(&region);
+    let (up, right, down, left) = ((0, -1), (1, 0), (0, 1), (-1, 0));
+
+    let mut edges = HashMap::<&Pos, HashSet<Dir>>::new();
+    for pos in &region {
+        edges.insert(pos, HashSet::new());
+        for dir in [up, right, down, left] {
+            if h.contains(&add(*pos, dir)) {
+                continue;
+            }
+
+            edges.get_mut(pos).unwrap().insert(dir);
+        }
+    }
+
+    // Remove shared edges with right or down
+    for pos in &region {
+        for dir in [down, right] {
+            let to_remove;
+            if let Some(their_edges) = edges.get(&add(*pos, dir)) {
+                to_remove = their_edges.to_owned();
+            } else {
+                continue;
+            }
+
+            let v = edges.get_mut(pos).unwrap();
+            for e in to_remove {
+                v.remove(&e);
+            }
+        }
+    }
+
+    // All edges that are left represent an actual edge.
+    let edge_score = edges.values().map(|e| e.len() as u64).sum::<u64>();
+    let area = region.len() as u64;
+    area * edge_score
 }
 
 #[allow(dead_code)]
@@ -83,4 +142,9 @@ MMMISSJEEE";
 #[test]
 fn test_part1() {
     test1(TEST_INPUT, 1930, input::as_vecvec, part1);
+}
+
+#[test]
+fn test_part2() {
+    test1(TEST_INPUT, 1206, input::as_vecvec, part2);
 }

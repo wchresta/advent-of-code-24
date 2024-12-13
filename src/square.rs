@@ -1,4 +1,4 @@
-pub type Pos = (usize, usize);
+pub type Pos = (isize, isize);
 
 pub fn straight_neighbours<'a, T>(
     square: &'a Vec<Vec<T>>,
@@ -9,7 +9,7 @@ where
     T: Sized + 'a,
 {
     straight_neighbour_pos(square, (x, y)).filter_map(move |(x, y)| {
-        let v = &square[y][x];
+        let v = &square[y as usize][x as usize];
         if is_neighbour((x, y), v) {
             Some(((x, y), v))
         } else {
@@ -28,11 +28,9 @@ pub fn straight_neighbour_pos<'a, T>(
             if x == 0 && *dx < 0 || y == 0 && *dy < 0 {
                 return None;
             }
-            if (x as isize + dx) as usize >= square.len()
-                || (y as isize + dy) as usize >= square[0].len()
-            {
+            if (x + dx) >= square.len() as isize || (y + dy) >= square[0].len() as isize {
                 return None;
             }
-            return Some(((x as isize + dx) as usize, (y as isize + dy) as usize));
+            return Some((x + dx, y + dy));
         })
 }
