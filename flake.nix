@@ -10,11 +10,12 @@
         rustfmt
         rust-analyzer
 
-        lapack
-        pkg-config
-        cmake
-        gfortran
-        blas
+        # Needed if we want to use nalgebra-lapack
+        # lapack
+        # pkg-config
+        # cmake
+        # gfortran
+        # blas
       ];
 
       # Certain Rust tools won't work without this
