@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use advent_of_code_24::{input, solve, test1};
+use advent_of_code_24::{input, solve};
 
 fn main() {
     solve("day10", input::as_digit_square, part1, part2);

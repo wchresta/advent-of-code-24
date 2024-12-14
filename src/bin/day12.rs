@@ -1,15 +1,12 @@
 use std::{
-    borrow::BorrowMut,
     collections::{
-        hash_map::Entry::{Occupied, Vacant},
         HashMap, HashSet,
     },
 };
 
 use advent_of_code_24::{
     input, solve,
-    square::{self, straight_neighbours},
-    test1,
+    square::{self},
 };
 
 type Pos = (isize, isize);

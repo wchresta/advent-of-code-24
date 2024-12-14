@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use advent_of_code_24::{digits, input, solve, split_digits, test1};
+use advent_of_code_24::{digits, input, solve, split_digits};
 
 #[allow(dead_code)]
 const TEST_INPUT: &str = "125 17";
