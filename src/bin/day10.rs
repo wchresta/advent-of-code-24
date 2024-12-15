@@ -12,7 +12,12 @@ fn part1(bx: &Vec<Vec<u8>>) -> u64 {
     for y in 0..bx.len() {
         for x in 0..bx[y].len() {
             if bx[y][x] == 0 {
-                score += topo.uphill_paths((x,y)).iter().map(|p| (*p.first().unwrap(), *p.last().unwrap())).collect::<HashSet<(Pos,Pos)>>().len();
+                score += topo
+                    .uphill_paths((x, y))
+                    .iter()
+                    .map(|p| (*p.first().unwrap(), *p.last().unwrap()))
+                    .collect::<HashSet<(Pos, Pos)>>()
+                    .len();
             }
         }
     }
@@ -25,10 +30,10 @@ fn part2(bx: &Vec<Vec<u8>>) -> u64 {
     for y in 0..bx.len() {
         for x in 0..bx[y].len() {
             if bx[y][x] != 0 {
-                continue
+                continue;
             }
 
-            let paths = topo.uphill_paths((x,y));
+            let paths = topo.uphill_paths((x, y));
             scores.push(paths.len() as u64)
         }
     }
@@ -122,11 +127,10 @@ const TEST_INPUT1: &str = "89010123
 
 #[test]
 fn test_part1() {
-    test1(TEST_INPUT1, 36, input::as_digit_square, part1)
+    advent_of_code_24::test1(TEST_INPUT1, 36, input::as_digit_square, part1)
 }
 
 #[test]
 fn test_part2() {
-    test1(TEST_INPUT1, 81, input::as_digit_square, part2)
+    advent_of_code_24::test1(TEST_INPUT1, 81, input::as_digit_square, part2)
 }
-

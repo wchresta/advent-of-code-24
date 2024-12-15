@@ -1,8 +1,4 @@
-use std::{
-    collections::{
-        HashMap, HashSet,
-    },
-};
+use std::collections::{HashMap, HashSet};
 
 use advent_of_code_24::{
     input, solve,
@@ -138,10 +134,10 @@ MMMISSJEEE";
 
 #[test]
 fn test_part1() {
-    test1(TEST_INPUT, 1930, input::as_vecvec, part1);
+    advent_of_code_24::test1(TEST_INPUT, 1930, input::as_vecvec, part1);
 }
 
 #[test]
 fn test_part2() {
-    test1(TEST_INPUT, 1206, input::as_vecvec, part2);
+    advent_of_code_24::test1(TEST_INPUT, 1206, input::as_vecvec, part2);
 }

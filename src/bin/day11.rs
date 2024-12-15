@@ -93,9 +93,9 @@ impl Runner {
 
 #[test]
 fn test_part1() {
-    test1("125 17", 13, input::single_line_vec, |s| run_stones(5, s));
-    test1("125 17", 22, input::single_line_vec, |s| run_stones(6, s));
-    test1(TEST_INPUT, 55312, input::single_line_vec, |s| {
+    advent_of_code_24::test1("125 17", 13, input::single_line_vec, |s| run_stones(5, s));
+    advent_of_code_24::test1("125 17", 22, input::single_line_vec, |s| run_stones(6, s));
+    advent_of_code_24::test1(TEST_INPUT, 55312, input::single_line_vec, |s| {
         run_stones(25, s)
     });
 }
