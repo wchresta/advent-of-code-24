@@ -83,8 +83,52 @@ fn part1(m: &M<char>) -> i64 {
     0
 }
 
-fn part2(_m: &M<char>) -> i64 {
-    0
+fn part2(m: &M<char>) -> i64 {
+    let state = State::new(m);
+
+    let mut score_goal = None;
+    let mut to_check = BinaryHeap::new();
+    to_check.push((0i64, state.start, EAST, Vec::from([state.start])));
+    let mut seen: HashSet<(Pos, Dir)> = HashSet::new();
+
+    let mut best_path_tiles = HashSet::new();
+    while let Some((score, pos, dir, path)) = to_check.pop() {
+        if let Some(goal) = score_goal {
+            if score < goal {
+                // Cannot be better
+                continue;
+            }
+        }
+
+        /* println!(
+            "Checking pos {:?} direction {:?} with score {}",
+            pos, dir, score
+        ); */
+        if pos == state.exit {
+            if score_goal.is_none() {
+                score_goal = Some(score);
+            }
+
+            if score_goal.unwrap() == score {
+                for t in path {
+                    best_path_tiles.insert(t);
+                }
+            }
+
+            continue;
+        }
+
+        for (dscore, new_pos, new_dir) in state.neighbours(pos, dir) {
+            if seen.contains(&(new_pos, new_dir)) {
+                continue;
+            }
+            seen.insert((pos, dir));
+            let mut new_path = path.to_owned();
+            new_path.push(new_pos);
+            to_check.push((score - dscore, new_pos, new_dir, new_path));
+        }
+    }
+    best_path_tiles.len() as i64
 }
 
 #[allow(unused)]
@@ -107,4 +151,9 @@ const TEST_INPUT: &str = "###############
 #[test]
 fn test_part1() {
     advent_of_code_24::test1(TEST_INPUT, 7036, parse, part1);
+}
+
+#[test]
+fn test_part2() {
+    advent_of_code_24::test1(TEST_INPUT, 45, parse, part2);
 }
