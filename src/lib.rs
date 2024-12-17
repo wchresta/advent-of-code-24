@@ -11,9 +11,9 @@ where
 }
 
 #[allow(dead_code)]
-pub fn test1<T, U>(inp: &str, want: U, input_func: impl Fn(&str) -> T, part1: impl Fn(&T) -> U)
+pub fn test1<'a, T, U>(inp: &str, want: U, input_func: impl Fn(&str) -> T, part1: impl Fn(&T) -> U)
 where
-    U: core::fmt::Display + core::fmt::Debug + Eq,
+    U: 'a + core::fmt::Display + core::fmt::Debug + Eq,
 {
     let t: T = input_func(inp);
     assert_eq!(part1(&t), want);
