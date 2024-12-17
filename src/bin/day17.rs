@@ -144,8 +144,56 @@ fn part1(c: &Computer) -> String {
     c.out.iter().map(|i| i.to_string()).join(",")
 }
 
-fn part2(c: &Computer) -> String {
-    String::new()
+fn part2(comp: &Computer) -> String {
+    let mut comp = comp.to_owned();
+    /*
+    Program:
+    while a != 0 {
+        b = a % 8;      // 2,4
+        b ^= 1;         // 1,1
+        c = a / (1<<b); // 7,5
+        a /= 8;         // 0,3
+        b ^= 4;         // 1,4
+        b ^= c;         // 4,0
+        print(b % 8)
+    }                   // 5,5
+    */
+
+    // In reverse
+    // We know a always only decreases and only by at most 8.
+    // So we can recover the a for every while step.
+    let want_outs: Vec<i64> = comp.instr.iter().map(|c| c.to_digit(10).unwrap() as i64).rev().collect();
+
+    // We know a up to the last 3 bits
+    // So let's just try all of them and see which one
+    // gives us the correct output.
+    // We also know the very last loop ends with a=0.
+    // We also know b and c do not matter, as they are 
+    // overwritten by a.
+    let mut possible_as = vec![0];
+    for want in want_outs {
+        let mut next_as = Vec::new();
+        for curr_a in possible_as {
+            for k in 0..8 {
+                // Prepare comp state
+                let new_a = (curr_a << 3) + k;
+                if new_a == 0 {
+                    continue
+                }
+                comp.a = new_a;
+                comp.out.clear();
+                comp.ip = 0;
+                while comp.out.is_empty() {
+                    comp.step();
+                }
+                if comp.out[0] == want {
+                    next_as.push(new_a);
+                }
+            }
+        }
+        possible_as = next_as;
+    }
+    possible_as.iter().min().unwrap().to_string()
 }
 
 #[allow(dead_code)]
@@ -160,7 +208,14 @@ fn test_part1() {
     advent_of_code_24::test1(TEST_INPUT, String::from("4,6,3,5,6,3,5,2,1,0"), parse, part1);
 }
 
+#[allow(dead_code)]
+const TEST_INPUT2: &str = "Register A: 117440
+Register B: 0
+Register C: 0
+
+Program: 0,3,5,4,3,0";
+
 #[test]
 fn test_part2() {
-    advent_of_code_24::test1(TEST_INPUT, String::from(""), parse, part2);
+    advent_of_code_24::test1(TEST_INPUT2, String::from("117440"), parse, part2);
 }
