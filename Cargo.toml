@@ -3,6 +3,12 @@ name = "advent-of-code-24"
 version = "0.1.0"
 edition = "2021"
 
+[dependencies]
+itertools = "0.13.0"
+nalgebra = "0.33.2"
+rayon = "1.10.0"
+regex = "1.11.1"
+
 [[bin]]
 name = "day1"
 path = "src/bin/day1.rs"
@@ -67,8 +73,6 @@ path = "src/bin/day16.rs"
 name = "day17"
 path = "src/bin/day17.rs"
 
-[dependencies]
-itertools = "0.13.0"
-nalgebra = "0.33.2"
-rayon = "1.10.0"
-regex = "1.11.1"
+[[bin]]
+name = "day18"
+path = "src/bin/day18.rs"

@@ -13,4 +13,9 @@ if [[ -e $TARGET_FILE ]]; then
     exit 1
 fi
 
-cp day.rs.tmpl "$TARGET_FILE"
+cat day.rs.tmpl | sed "s/%DAY%/$DAY" > "$TARGET_FILE"
+
+echo "[[bin]]
+name = "day$DAY"
+path = "src/bin/day$DAY.rs"
+" >> ./Cargo.toml
