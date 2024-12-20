@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 pub type Pos = (isize, isize);
 
 pub type M<T> = Vec<Vec<T>>;
@@ -132,4 +134,28 @@ pub fn pos_add<T: Into<isize>>(a: Pos, b: (T, T)) -> Pos {
 
 pub fn pos_sub<T: Into<isize>>(a: Pos, b: (T, T)) -> Pos {
     (a.0 - b.0.into(), a.1 - b.1.into())
+}
+
+#[derive(Debug, Clone)]
+pub struct Counter<T> {
+    pub counts: HashMap<T, isize>,
+}
+
+impl<T> Counter<T>
+where
+    T: Eq + core::hash::Hash,
+{
+    pub fn new() -> Self {
+        Self {
+            counts: HashMap::new(),
+        }
+    }
+
+    pub fn inc(&mut self, t: T) {
+        self.add(t, 1)
+    }
+
+    pub fn add(&mut self, t: T, a: isize) {
+        *self.counts.entry(t).or_default() += a
+    }
 }

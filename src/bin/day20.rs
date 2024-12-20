@@ -1,10 +1,8 @@
-use std::{
-    collections::{BinaryHeap, HashMap, HashSet},
-};
+use std::collections::{BinaryHeap, HashMap};
 
 use advent_of_code_24::{
     input,
-    square::{straight_neighbours, PeekStraight, Pos, PosFind, PosIter, PosSet, M},
+    square::{pos_add, straight_neighbours, Counter, Pos, PosFind, M},
 };
 use itertools::Itertools;
 
@@ -20,26 +18,23 @@ struct S {
 }
 
 impl S {
-    fn shortest_path(&self) -> Option<isize> {
+    fn find_distances(&self, start: Pos) -> HashMap<Pos, isize> {
         let mut heap = BinaryHeap::new();
-        let mut seen = HashSet::from([self.start_pos]);
+        let mut distances = HashMap::new();
 
-        heap.push((0, self.start_pos));
+        distances.insert(start, 0);
+        heap.push((0, start));
 
         while let Some((score, pos)) = heap.pop() {
-            if pos == self.end_pos {
-                return Some(-score);
-            }
-
             for (npos, _) in straight_neighbours(&self.maze, pos, |_, t| *t != '#') {
-                if seen.contains(&npos) {
+                if distances.contains_key(&npos) {
                     continue;
                 }
-                seen.insert(npos);
+                distances.insert(npos, -score + 1);
                 heap.push(((score - 1), npos))
             }
         }
-        None
+        distances
     }
 }
 
@@ -55,53 +50,44 @@ fn parse(s: &str) -> S {
 }
 
 fn part1(s: &S) -> isize {
-    savings(s)
-        .iter()
-        .filter_map(|(s, a)| if *s >= 100 { Some(a) } else { None })
-        .sum()
+    saving_min(s, 2, 100).iter().map(|(_, s)| s).sum()
 }
 
-fn savings(s: &S) -> Vec<(isize, isize)> {
-    let baseline = s.shortest_path().unwrap();
-    let mut savings: HashMap<isize, isize> = HashMap::new();
+fn part2(s: &S) -> isize {
+    saving_min(s, 20, 100).iter().map(|(_, s)| s).sum()
+}
 
-    s.maze.pos_iter().for_each(|(pos, t)| {
-        if t != '#' {
-            return;
-        }
-        {
-            let (n, s, e, w) = (
-                *s.maze.peek_north(pos).unwrap_or(&'#'),
-                *s.maze.peek_south(pos).unwrap_or(&'#'),
-                *s.maze.peek_east(pos).unwrap_or(&'#'),
-                *s.maze.peek_west(pos).unwrap_or(&'#'),
-            );
-            let can_jump = (n != '#' && s != '#') || (e != '#' && w != '#');
-            if !can_jump {
-                return;
+fn savings(s: &S, dist: isize) -> Vec<(isize, isize)> {
+    let start_distances = s.find_distances(s.start_pos);
+    let end_distances = s.find_distances(s.end_pos);
+    let baseline = *start_distances.get(&s.end_pos).unwrap();
+
+    let mut savings = Counter::new();
+    for (pos, cost) in start_distances.iter() {
+        for dx in -dist..dist + 1 {
+            for dy in -dist + dx.abs()..dist - dx.abs() + 1 {
+                if let Some(rest_cost) = end_distances.get(&pos_add(*pos, (dx, dy))) {
+                    let total_cost = cost + rest_cost + dx.abs() + dy.abs();
+                    let saved = baseline - total_cost;
+                    if saved > 0 {
+                        savings.inc(saved);
+                    }
+                }
             }
         }
-
-        let mut s2: S = s.clone();
-        s2.maze.pos_set(pos, '.');
-        let score = s2.shortest_path().unwrap();
-
-        if score < baseline {
-            let saving = baseline - score;
-            savings
-                .entry(saving)
-                .and_modify(|a| {
-                    *a += 1;
-                })
-                .or_insert(1);
-        }
-    });
-
-    savings.into_iter().sorted().collect_vec()
+    }
+    savings
+        .counts
+        .into_iter()
+        .sorted_by_key(|(key, _)| *key)
+        .collect_vec()
 }
 
-fn part2(_s: &S) -> isize {
-    0
+fn saving_min(s: &S, dist: isize, min: isize) -> Vec<(isize, isize)> {
+    savings(s, dist)
+        .into_iter()
+        .filter(|(s, _)| *s >= min)
+        .collect_vec()
 }
 
 #[allow(dead_code)]
@@ -139,11 +125,31 @@ fn test_part1() {
             (64, 1),
         ],
         parse,
-        savings,
+        |s| savings(s, 2),
     );
 }
 
 #[test]
 fn test_part2() {
-    advent_of_code_24::test1(TEST_INPUT, 0, parse, part2);
+    advent_of_code_24::test1(
+        TEST_INPUT,
+        vec![
+            (50, 32),
+            (52, 31),
+            (54, 29),
+            (56, 39),
+            (58, 25),
+            (60, 23),
+            (62, 20),
+            (64, 19),
+            (66, 12),
+            (68, 14),
+            (70, 12),
+            (72, 22),
+            (74, 4),
+            (76, 3),
+        ],
+        parse,
+        |s| saving_min(s, 20, 50),
+    );
 }
