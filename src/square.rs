@@ -50,6 +50,42 @@ where
     }
 }
 
+pub trait PosSafeGet<T> {
+    fn pos_safe_get(&self, pos: Pos) -> Option<&T>;
+}
+
+impl<T> PosSafeGet<T> for M<T> {
+    fn pos_safe_get(&self, pos: Pos) -> Option<&T> {
+        if pos.1 < 0 || pos.0 < 0 {
+            return None;
+        }
+        self.get(pos.1 as usize)?.get(pos.0 as usize)
+    }
+}
+
+pub trait PeekStraight<T> {
+    fn peek_rel(&self, from: Pos, towards: Pos) -> Option<&T>;
+
+    fn peek_north(&self, pos: Pos) -> Option<&T> {
+        self.peek_rel(pos, (0, -1))
+    }
+    fn peek_south(&self, pos: Pos) -> Option<&T> {
+        self.peek_rel(pos, (0, 1))
+    }
+    fn peek_east(&self, pos: Pos) -> Option<&T> {
+        self.peek_rel(pos, (1, 0))
+    }
+    fn peek_west(&self, pos: Pos) -> Option<&T> {
+        self.peek_rel(pos, (-1, 0))
+    }
+}
+
+impl<B: PosSafeGet<T>, T> PeekStraight<T> for B {
+    fn peek_rel(&self, from: Pos, towards: Pos) -> Option<&T> {
+        self.pos_safe_get(pos_add::<isize>(from, towards))
+    }
+}
+
 pub trait PosSet<T> {
     fn pos_set(&mut self, pos: Pos, t: T);
 }
