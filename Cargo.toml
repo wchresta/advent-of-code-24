@@ -5,6 +5,8 @@ edition = "2021"
 
 [dependencies]
 itertools = "0.13.0"
+lazy_static = "1.5.0"
+memoize = "0.4.2"
 nalgebra = "0.33.2"
 rayon = "1.10.0"
 regex = "1.11.1"
@@ -85,5 +87,10 @@ path = "src/bin/day19.rs"
 [[bin]]
 name = "day20"
 path = "src/bin/day20.rs"
+
+
+[[bin]]
+name = "day21"
+path = "src/bin/day21.rs"
 
 
