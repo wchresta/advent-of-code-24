@@ -69,8 +69,8 @@ fn make_pairs<'a, T>(v: &'a Vec<T>) -> Vec<(&'a T, &'a T)> {
     pairs
 }
 
-fn linadd(max: Coord, k: isize, a: Coord, b: (i64,i64)) -> Option<Coord> {
-    let akb = ((a.0 as i64 + k as i64*b.0), (a.1 as i64 + k as i64*b.1));
+fn linadd(max: Coord, k: isize, a: Coord, b: (i64, i64)) -> Option<Coord> {
+    let akb = ((a.0 as i64 + k as i64 * b.0), (a.1 as i64 + k as i64 * b.1));
     if akb.0 < 0 || akb.1 < 0 || akb.0 >= max.0 as i64 || akb.1 >= max.1 as i64 {
         None
     } else {
@@ -90,7 +90,7 @@ fn leap2(max: Coord, (a, b): (Coord, Coord)) -> Vec<Coord> {
     res
 }
 
-fn leap(max: Coord, (a,b): (Coord, Coord)) -> Vec<Coord> {
+fn leap(max: Coord, (a, b): (Coord, Coord)) -> Vec<Coord> {
     let ab = (b.0 as i64 - a.0 as i64, b.1 as i64 - a.1 as i64);
     let mut res = Vec::new();
     // Positive
@@ -150,4 +150,3 @@ fn test_part2() {
     );
     assert_eq!(part2(&inp), 34);
 }
-

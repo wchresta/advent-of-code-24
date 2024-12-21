@@ -52,9 +52,8 @@ pub fn as_digit_square(content: &str) -> Vec<Vec<u8>> {
     as_lines(content)
         .iter()
         .map(|line| {
-            line.chars().map(|p| {
-                    p.to_digit(10).unwrap() as u8
-                })
+            line.chars()
+                .map(|p| p.to_digit(10).unwrap() as u8)
                 .collect::<Vec<_>>()
         })
         .collect()

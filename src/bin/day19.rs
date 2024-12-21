@@ -1,5 +1,3 @@
-
-
 fn main() {
     advent_of_code_24::solve("day19", parse, part1, part2);
 }

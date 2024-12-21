@@ -36,31 +36,31 @@ impl Computer {
         match instr.into() {
             Instr::ADV => {
                 self.a = self.a / (2i64.pow(self.combo(arg) as u32));
-            },
+            }
             Instr::BXL => {
                 self.b = self.b ^ self.literal(arg);
-            },
+            }
             Instr::BST => {
                 self.b = self.combo(arg) % 8;
-            },
+            }
             Instr::JNZ => {
-                if self.a != 0 { 
+                if self.a != 0 {
                     self.ip = self.literal(arg) as usize;
-                    return // Do not increase IP
+                    return; // Do not increase IP
                 }
-            },
+            }
             Instr::BXC => {
                 self.b = self.c ^ self.b;
-            },
+            }
             Instr::OUT => {
                 self.out.push(self.combo(arg) % 8);
-            },
+            }
             Instr::BDV => {
                 self.b = self.a / (2i64.pow(self.combo(arg) as u32));
-            },
+            }
             Instr::CDV => {
                 self.c = self.a / (2i64.pow(self.combo(arg) as u32));
-            },
+            }
         }
 
         self.ip += 2;
@@ -87,19 +87,25 @@ impl Computer {
 
 impl From<&str> for Computer {
     fn from(value: &str) -> Self {
-        let reg = Regex::new(r"(?s)Register A: (\d+)\s*
+        let reg = Regex::new(
+            r"(?s)Register A: (\d+)\s*
 Register B: (\d+)\s*
 Register C: (\d+)\s*
 
-Program: ([\d,]+)").unwrap();
-        
-        let (_, [a,b,c,prog]) = reg.captures(value).unwrap().extract();
+Program: ([\d,]+)",
+        )
+        .unwrap();
+
+        let (_, [a, b, c, prog]) = reg.captures(value).unwrap().extract();
         Self {
             a: a.parse().unwrap(),
             b: b.parse().unwrap(),
             c: c.parse().unwrap(),
             ip: 0,
-            instr: prog.split(",").map(|i| i.chars().next().unwrap().into()).collect(),
+            instr: prog
+                .split(",")
+                .map(|i| i.chars().next().unwrap().into())
+                .collect(),
             out: Vec::new(),
             done: false,
         }
@@ -162,13 +168,18 @@ fn part2(comp: &Computer) -> String {
     // In reverse
     // We know a always only decreases and only by at most 8.
     // So we can recover the a for every while step.
-    let want_outs: Vec<i64> = comp.instr.iter().map(|c| c.to_digit(10).unwrap() as i64).rev().collect();
+    let want_outs: Vec<i64> = comp
+        .instr
+        .iter()
+        .map(|c| c.to_digit(10).unwrap() as i64)
+        .rev()
+        .collect();
 
     // We know a up to the last 3 bits
     // So let's just try all of them and see which one
     // gives us the correct output.
     // We also know the very last loop ends with a=0.
-    // We also know b and c do not matter, as they are 
+    // We also know b and c do not matter, as they are
     // overwritten by a.
     let mut possible_as = vec![0];
     for want in want_outs {
@@ -178,7 +189,7 @@ fn part2(comp: &Computer) -> String {
                 // Prepare comp state
                 let new_a = (curr_a << 3) + k;
                 if new_a == 0 {
-                    continue
+                    continue;
                 }
                 comp.a = new_a;
                 comp.out.clear();
@@ -205,7 +216,12 @@ Program: 0,1,5,4,3,0";
 
 #[test]
 fn test_part1() {
-    advent_of_code_24::test1(TEST_INPUT, String::from("4,6,3,5,6,3,5,2,1,0"), parse, part1);
+    advent_of_code_24::test1(
+        TEST_INPUT,
+        String::from("4,6,3,5,6,3,5,2,1,0"),
+        parse,
+        part1,
+    );
 }
 
 #[allow(dead_code)]
