@@ -16,6 +16,7 @@
         # cmake
         # gfortran
         # blas
+        xmlstarlet
       ];
 
       # Certain Rust tools won't work without this
