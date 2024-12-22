@@ -29,8 +29,20 @@ pub fn solve<T, U>(
     U: core::fmt::Display,
 {
     let t: T = input_func(&input::read(day));
-    println!("part1: {}", part1(&t));
-    println!("part2: {}", part2(&t));
+    let start = std::time::Instant::now();
+    let soln1 = part1(&t);
+    println!(
+        "part1 in {:.5} seconds: {}",
+        start.elapsed().as_secs_f32(),
+        soln1
+    );
+    let start = std::time::Instant::now();
+    let soln2 = part2(&t);
+    println!(
+        "part2 in {:.5} seconds: {}",
+        start.elapsed().as_secs_f32(),
+        soln2
+    );
 }
 
 pub fn digits(num: u64) -> u32 {
