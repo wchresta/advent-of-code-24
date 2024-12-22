@@ -27,6 +27,11 @@ impl Iterator for Rand {
     type Item = N;
 
     fn next(&mut self) -> Option<N> {
+        // We can try to optimize this using shift operations.
+        // Also, since MOD = 0x1000000, we know the numbers will always
+        // fit into u32.
+        // However, in practice, none of this made real difference, so we
+        // won't bother.
         self.secret ^= self.secret * 64;
         self.secret ^= self.secret % MOD / 32;
         self.secret ^= self.secret % MOD * 2048;
@@ -70,10 +75,14 @@ fn part1(secrets: &S) -> N {
 
 fn part2(secrets: &S) -> N {
     secrets
+        // Each secret can be handled independently; so we parallelize to make it go brrrr.
         .into_par_iter()
         .map(|s| DiffRand::new(*s).take(2000))
         .map(|seq| {
+            // We want to run four iterators over the numbers.
+            // It's just 2000, so we can easily fit this into memory.
             let seq: Vec<(u8, i8)> = seq.collect();
+            // Will hold the achievable price for every 4-sequence.
             let mut prices = HashMap::new();
             for ((_, d0), (_, d1), (_, d2), (p, d3)) in multizip((
                 seq.iter(),
@@ -81,11 +90,13 @@ fn part2(secrets: &S) -> N {
                 seq.iter().skip(2),
                 seq.iter().skip(3),
             )) {
+                // Only insert a price if it doesn't already exist.
                 prices.entry((*d0, *d1, *d2, *d3)).or_insert(*p as N);
             }
             prices
         })
         .reduce(HashMap::new, |mut acc, hash| {
+            // Merge all hashmaps by summing their elements.
             for (seq, price) in hash {
                 if acc.contains_key(&seq) {
                     acc.insert(seq, acc[&seq] + price);
@@ -95,6 +106,7 @@ fn part2(secrets: &S) -> N {
             }
             acc
         })
+        // The prices are stored in the values. We only care about the max price.
         .into_values()
         .max()
         .unwrap()
