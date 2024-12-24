@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{borrow::BorrowMut, collections::{HashMap, HashSet}};
 
 use itertools::Itertools;
 
@@ -88,11 +88,20 @@ fn part2((start, gate_instr): &S) -> i64 {
         .unwrap();
     println!("Register size: {}", size);
 
-    for (x, y) in [(false, false), (true, false), (false, true), (true, true)] {
-        for i in 0..size {
-            let mut gates = init_gates.clone();
-            let mut queue = vec![(format!("x{:02}", i), x), (format!("y{:02}", i), y)];
+    let mut candidate_gates: HashMap<usize, HashSet<usize>> = HashMap::new();
+
+    let mut seen_fired: HashSet<usize> = HashSet::new();
+    for i in 0..size {
+        for (x, y, want) in [(false, true, true)] {
+            let mut fired = HashSet::new();
             let mut outputs = Vec::new();
+            let mut gates = init_gates.clone();
+
+            // Prepare queue with 0 for all bits below the current
+            let mut queue = (0..i).flat_map(|k| [(format!("x{:02}", k), false), (format!("y{:02}", k), false)]).collect_vec();
+            queue.push((format!("x{:02}", i), x));
+            queue.push((format!("y{:02}", i), y));
+
             while let Some((in_wire, in_val)) = queue.pop() {
                 let input_for = gate_lookup.get(&in_wire);
                 if input_for.is_none() {
@@ -101,11 +110,24 @@ fn part2((start, gate_instr): &S) -> i64 {
                 }
                 for gate_idx in input_for.unwrap() {
                     if let Some(out) = gates[*gate_idx].load(in_val) {
+                        fired.insert(*gate_idx);
                         queue.push(out);
                     }
                 }
             }
-            println!("Output bit {} {} {}: {:?}", i, x, y, outputs);
+            let seen_fired_ro = seen_fired.clone();
+            let fired_new: HashSet<usize> = HashSet::from_iter(fired.difference(&seen_fired_ro).map(|v| *v));
+            if outputs.len() != i+1 || !outputs.iter().any(|g| *g==(format!("z{:02}", i), want)) {
+                candidate_gates.insert(i, HashSet::from_iter(fired_new.clone().into_iter()));
+            }
+            seen_fired.extend(fired_new);
+        }
+    }
+
+    for (i,cand) in candidate_gates {
+        println!("Maybe bit {} is wrong with gates {:?}:", i, cand);
+        for g in cand {
+            println!("  Gate: {:?}", init_gates[g])
         }
     }
     1
